@@ -1,1 +1,10 @@
-Lrev D R L Drev U Frev Rrev Frev Rrev
+L
+Brev
+R
+L2
+B
+Lrev
+Urev
+R2
+U
+Brev

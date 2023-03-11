@@ -6,12 +6,13 @@ from random import *
 import random
 import json
 import os
+import glob
+import re
 
 sys.path.insert(1, '../model_files/')
 
 import cube
 import encode_cube as en
-
 
 
 def write_to_json(data,path):
@@ -22,100 +23,42 @@ def write_to_json(data,path):
     with open(path,"w") as out:
         out.write(json_object)
 
-def triple_consecutive_status(move_list):
-    prev_move = '0'
-    count = 0
-    for i in range(len(move_list)):
-        if move_list[i] != prev_move:
-            prev_move = move_list[i]
-            count = 0
-        else:
-            count += 1
-            if count == 2:
-                return False
-    return True
-
-def remove_triple_consecutive_moves(move_list):
-    new_move_list = []
-    prev_move = '0'
-    count = 0
-    for i in range(len(move_list)):
-        if move_list[i] != prev_move:
-            new_move_list.append(move_list[i])
-            prev_move = move_list[i]
-            count = 0
-        else:
-            if count == 0:
-                new_move_list.pop()
-            count += 1
-            if count == 2:
-                if 'rev' not in move_list[i]:
-                    new_move_list.append(move_list[i] + 'rev')
-                    prev_move = move_list[i] + 'rev'
-                else:
-                    new_move_list.append(move_list[i][:-3])
-                    prev_move = move_list[i][:-3]
-                    
-    return new_move_list
-
-def consecutive_status(a,b):
-    if 'rev' in a:
-        a = a[:-3]
-        if a == b:
-            return True
-        
-    elif 'rev' in b:
-        b = b[:-3]
-        if a == b:
-            return True
-    return False
-
-def check_consecutive_status(move_list):
-    
-    for i in range(len(move_list) - 1):
-        if consecutive_status(move_list[i],move_list[i+1]):
-            return True
-    return False
-
-def remove_consecutive_moves(move_list):
-    
-    new_move_list = []
-    flag = 0
-    for i in range(len(move_list) - 1):
-        if consecutive_status(move_list[i],move_list[i+1]) and flag == 0:
-            flag = 1
-            continue
-        
-        if flag == 1:
-            flag = 0
-            continue
-        
-        if flag == 0:
-            new_move_list.append(move_list[i])
-    
-    if consecutive_status(move_list[-1],move_list[-2]) == False:
-        new_move_list.append(move_list[-1])
-    
-    return new_move_list
             
-    
+def check_not_optimal(face, last_face, second_to_last_face):
+    # print(face, last_face, second_to_last_face)
+    if face == last_face:
+        return True
+    if face == second_to_last_face:
+        if ((face in ['F','B']) and (last_face in ['F', 'B'])) or ((face in ['L', 'R']) and (last_face in ['L', 'R'])) or ((face in ['U', 'D']) and (last_face in ['U', 'D'])):
+            return True
+    return False
 
 def random_state(moves_to_shuffle):
     move_list = []
-    recent_move = '0'
-    count = 0
+
     for i in range(moves_to_shuffle):
-        count += 1
-        print(count, 'moves out of', moves_to_shuffle, end='\r')
         move = random.choice(actions_list)
         
-        while move[0] == recent_move[0]:
-            move = random.choice(actions_list)
+        if i > 1:
+            current_move = move
+            last_move = move_list[-1]
+            second_to_last_move = move_list[-2]
+            while check_not_optimal(current_move[0].upper(), last_move[0].upper(), second_to_last_move[0].upper()):
+                move = random.choice(actions_list)
+                current_move = move
+        if i > 0:
+            last_move = move_list[-1]
+            while move[0] == last_move[0]:
+                move = random.choice(actions_list)
             
         move_list.append(move)
-        recent_move = move
-        func = actions_dict[move]
-        func()
+        if '2' not in move:
+            func = actions_dict[move]
+            func()
+        else:
+            func = actions_dict[move[0]]
+            func()
+            func()
     
     # for move in move_list:
     #     func = actions_dict[move]
@@ -135,7 +78,7 @@ global path_pddl, problem_file_path, plan_file_path, actions_list, plan_actions,
 pddl_model_path = '../model_files/model_problem.pddl'
 # path_pddl = 'model_files/sample_test.pddl'
 
-actions_list = ['U', 'Urev','D','Drev','F','Frev','B','Brev','R','Rrev','L','Lrev']
+actions_list = ['U', 'Urev','D','Drev','F','Frev','B','Brev','R','Rrev','L','Lrev', 'U2', 'D2', 'F2', 'B2', 'R2', 'L2']
 actions_dict = { 'U': cube.U,'Urev': cube.Urev,'D': cube.D,'Drev': cube.Drev,'F': cube.F,'Frev': cube.Frev,
                 'B': cube.B,'Brev': cube.Brev,'R': cube.R,'Rrev': cube.Rrev,'L': cube.L,'Lrev': cube.Lrev }
 
@@ -166,12 +109,22 @@ if os.path.exists( '../problem_files/scramble_steps' ) == False:
 problem_files = '../problem_files/problems/'
 scramble_files = '../problem_files/scramble_steps/'
 
+problem_file_names = [os.path.basename(x) for x in glob.glob(problem_files + '*.pddl')]
+
 problem_dict = {}
+
 count = 0
+for item in problem_file_names:
+    if 'problem_' + "{:02d}".format(moves_to_shuffle) in item:
+        # extract number from file name
+        numbers = re.findall(r'\d+', item)
+        if count < int(numbers[-1]):
+            count = int(numbers[-1])
+
 print("Moves to shuffle: ", moves_to_shuffle, " -- Number of files: ", loop_count, "\n")
 for t in range(loop_count):
     
-    print(t, 'Out of', loop_count, 'Loops', end='\r')
+    # print(t, 'Out of', loop_count, 'Loops', end='\r')
 
     if moves_to_shuffle == None:
         moves = random.randint(1,20)
@@ -179,6 +132,7 @@ for t in range(loop_count):
         moves = moves_to_shuffle
 
     plan_actions = random_state(moves)
+    # print(plan_actions)
     init_state = en.to_pddl()
     str_init_states = ' '.join([item.replace('\n','') for item in init_state])
     
@@ -224,8 +178,10 @@ for t in range(loop_count):
     f.close()
 
     with open(scramble_file_path, 'w') as f:
-        f.write(' '.join(plan_actions))
+        f.write('\n'.join(plan_actions))
     f.close()
+
+    print(problem_name, ' -- scramble sequence ', ', '.join(plan_actions))
 
     cube.CubeResolue()
 

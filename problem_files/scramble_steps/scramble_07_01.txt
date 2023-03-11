@@ -1,1 +1,7 @@
-U Rrev U D Rrev U Frev
+Rrev
+L2
+D2
+Urev
+F2
+D2
+L

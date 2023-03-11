@@ -43,7 +43,7 @@ def to_pddl():
     edge78 = '(edge78 '+dict_colors[ cube.CC[5][2][1] ]+ ' ' +dict_colors[ cube.CC[3][2][1] ]+')\n'
     edge57 = '(edge57 '+dict_colors[ cube.CC[0][1][2] ]+ ' ' +dict_colors[ cube.CC[3][1][0] ]+')\n'
 
-    var_to_append = [cube1,cube2,cube3,cube4,cube5,cube6,cube7,cube8,edge12,edge13,edge15,edge24,edge26,edge34,edge37,edge48,edge56,edge57,edge68,edge78 ]
+    var_to_append = [cube1,cube2,cube3,cube4,cube5,cube6,cube7,cube8,edge12,edge24,edge34,edge13,edge15,edge26,edge48,edge37,edge56,edge68,edge78,edge57 ]
     return var_to_append
 
 def pddl_to_viz(problem_file_path):

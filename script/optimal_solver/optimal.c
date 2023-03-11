@@ -3862,9 +3862,9 @@ return;
 /* ------------------------------------------------------------------------- */
 
 {
-static char            *twist_string[] = {"F ", "F2", "F'", "R ", "R2", "R'",
-                                          "U ", "U2", "U'", "B ", "B2", "B'",
-                                          "L ", "L2", "L'", "D ", "D2", "D'"};
+static char            *twist_string[] = {"F", "F2", "Frev", "R", "R2", "Rrev",
+                                          "U", "U2", "Urev", "B", "B2", "Brev",
+                                          "L", "L2", "Lrev", "D", "D2", "Drev"};
 Search_node            *p_node;
 int                     turn_list[MAX_TWISTS];
 int                     ii, count, q_length, f_length;
@@ -3883,9 +3883,10 @@ for (ii = 0; ii < count; ii++)
     f_length += metric_f_length(turn_list[ii]);
     }
 
+printf("\nSolution:");
 for (ii = 0; ii < count; ii++)
     printf(" %s", twist_string[turn_list[ii]]);
-
+printf("\n");
 if (p_current_metric->metric == QUARTER_TURN_METRIC)
    printf("  (%dq*, %df)\n", q_length, f_length);
 else

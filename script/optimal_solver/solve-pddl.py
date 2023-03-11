@@ -27,13 +27,13 @@ def get_pddl_file():
 def translate_color_to_position(color):
     if color == 'W':
         return 'F'  # front
-    elif color == 'R':
-        return 'L'  # left
-    elif color == 'G':
-        return 'U'  # up
     elif color == 'B':
-        return 'D'  # down
+        return 'L'  # left
+    elif color == 'R':
+        return 'U'  # up
     elif color == 'O':
+        return 'D'  # down
+    elif color == 'G':
         return 'R'  # right
     else:
         assert(color == 'Y')
@@ -201,7 +201,7 @@ def compile_solver():
     print("Done.\n")
 
 
-def solve(seq):
+def solve(seq, filename):
     if not os.path.exists(SOLVER_PATH):
         compile_solver()
 
@@ -209,13 +209,24 @@ def solve(seq):
 
     cmd = [f"./{SOLVER_PATH}"]
     init_config = " ".join(seq)
-    process = subprocess.run(cmd, input=init_config, text=True)
-
+    with open("solver.log", "w") as f:
+        process = subprocess.run(cmd, input=init_config, text=True, stdout=f)
+    # process = subprocess.run(cmd, input=init_config, text=True)
+    with open("solver.log", "r") as f:
+        content = f.read()
+        solution = content.split("Solution: ")[1].split("\n")[0]
+        # print(solution)
+    
+    problem_file_name = os.path.basename(filename)
+    print(f"Solution for {problem_file_name} is: {solution}")
+    print("Plan length:", len(solution.split(' ')))
+    with open(f"optimal_plans/optimal_plan_{problem_file_name.replace('.pddl','.txt')}", "w") as f:
+        f.write('\n'.join(solution.split(' ')))
     print("\nQuitting solver...\n")
 
 
 if __name__ == "__main__":
     filename = get_pddl_file()
     seq = parse_pddl(filename)
-    solve(seq)
+    solve(seq, filename)
 

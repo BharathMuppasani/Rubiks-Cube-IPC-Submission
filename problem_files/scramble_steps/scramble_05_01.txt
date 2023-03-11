@@ -1,1 +1,5 @@
-D Urev L D B
+D
+U
+F
+D
+Lrev
