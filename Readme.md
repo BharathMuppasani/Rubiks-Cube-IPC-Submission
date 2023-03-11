@@ -12,7 +12,7 @@
     > python plan_validator.py <\problem-file-path> <\plan-file-path>
 
 #### Optimal Plan Generator:
-1. The _script_ folder contains _optimal\_solver_ folder which has a solver[1] to gnerate optimal plans and a python code to execute it. _solve-pddl.py_ file takes 1 argument: _problem-file-path_ and generates an optimal plan which is stored in _script/optimal\_solver/optimal\_plans_
+1. The _script_ folder contains _optimal\_solver_ folder which has a solver[1] to generate optimal plans and a python code to execute it. _solve-pddl.py_ file takes 1 argument: _problem-file-path_ and generates an optimal plan which is stored in _script/optimal\_solver/optimal\_plans_
     > python solve-pddl.py <\problem-file-path>
     
 [1] https://www.cflmath.com/~reid/Rubik/optimal_solver.html
