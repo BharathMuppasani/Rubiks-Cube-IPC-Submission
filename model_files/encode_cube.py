@@ -1,3 +1,5 @@
+# Credits - https://code-projects.org/rubiks-cube-in-python-with-source-code/
+
 from tkinter import *
 import cube
 from random import *
